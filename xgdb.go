@@ -3,10 +3,12 @@ package main
 import (
 	//"bytes"
 	"fmt"
-
-	"golang.org/x/crypto/ssh"
 	"io"
 	"os"
+
+	//"golang.org/x/crypto/ssh"
+
+	"github.com/upperwal/xgdb/gdb"
 )
 
 const (
@@ -33,10 +35,17 @@ func (s Shell) reader() (string, error) {
 
 func main() {
 
-	sshConfig := &ssh.ClientConfig {
-		User: "abhishek",
+	gdb, err := gdb.NewGDB("main")
+	if err != nil {
+		panic(err)
+	}
+
+	gdb.Start()
+
+	/*sshConfig := &ssh.ClientConfig {
+		User: "marslab",
 		Auth: []ssh.AuthMethod {
-			ssh.Password("m@c@bh!$h3k"),
+			ssh.Password("admin"),
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
@@ -61,7 +70,7 @@ func main() {
 
 	s.Shell()
 
-	sh := NewShell(out, in, er)
+	sh := NewShell(out, in, er)*/
 
 
 
@@ -79,9 +88,9 @@ func main() {
 
 	fmt.Println(string(buf[:]))*/
 
-	go readRoutine(sh)
+	/*go readRoutine(sh)
 	go writeRoutine(sh)
-	go errRoutine(sh)
+	go errRoutine(sh)*/
 
 
 	/*_, err = sh.Stdin.Write([]byte("export ARR=/home/\n"))
