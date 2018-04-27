@@ -39,14 +39,16 @@ func (gdb *GDB) Start() {
 	go gdb.remoteStdoutRoutine()
 	go gdb.remoteErrRoutine()
 
-	gdb.initGDB()
+	parser.PROMPT = parser.SHELL
+
+	gdb.InitGDB()
 }
 
-func (gdb *GDB) initGDB() {
+func (gdb *GDB) InitGDB() {
 	// Attach gdb to pid's
 	parser.PROMPT = parser.XGDB
 
-	err := gdb.ShellGroup.Writer([]byte("gdb\n"))
+	err := gdb.ShellGroup.InitGDB()
 	if err != nil {
 		panic(err)
 	}
@@ -93,6 +95,7 @@ func (gdb *GDB) remoteStdoutRoutine() {
 		}
 		
 		parser.ParseStdoutStream(s)
+		time.Sleep(10 * time.Millisecond)
 	}
 
 }

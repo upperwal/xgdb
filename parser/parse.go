@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sort"
 	"strconv"
+	"os"
 )
 
 const (
@@ -39,9 +40,7 @@ func ParseStdoutStream(data []*RawData) {
 	accumulateOutput := make(map[string][]int)
 
 	for _, rawData := range data {
-		accumulateOutput[rawData.Data] = append(accumulateOutput[rawData.Data], rawData.PID)
-
-		
+		accumulateOutput[rawData.Data] = append(accumulateOutput[rawData.Data], rawData.PID)	
 	}
 
 	for output, pid := range accumulateOutput {
@@ -98,11 +97,16 @@ func parseGeneric(data string) (string, error) {
 }
 
 func formatPID(pidArray []int) string {
+
 	if len(pidArray) == 1 {
 		return strconv.Itoa(pidArray[0])
 	}
 
 	sort.Ints(pidArray)
+
+	if len(pidArray) == 2 {
+		return strconv.Itoa(pidArray[0]) + "..." + strconv.Itoa(pidArray[1])
+	}
 
 	var buffer bytes.Buffer
 	buffer.WriteString(strconv.Itoa(pidArray[0]))
@@ -121,6 +125,8 @@ func PreProcess(data []byte) bool {
 	if strings.Compare(s, "version") == 0 {
 		fmt.Printf("Version: %s\n\n%s", VERSION, PROMPT)
 		return true
+	} else if strings.Compare(s, "quit") == 0 {
+		os.Exit(1)
 	}
 	return false
 }

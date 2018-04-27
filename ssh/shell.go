@@ -2,6 +2,7 @@ package ssh
 
 import (
 	"io"
+	"strconv"
 
 	"github.com/upperwal/xgdb/locator"
 	"github.com/upperwal/xgdb/parser"
@@ -70,6 +71,19 @@ func NewShellGroup(processInfo []locator.ProcessInfo) (*ShellGroup, error) {
 	}
 
 	return sg, nil
+}
+
+func (sg *ShellGroup) InitGDB() error {
+	data := "gdb --pid "
+	for pid, shell := range sg.PID2Shell {
+		
+		_, err := shell.Stdin.Write([]byte(data + strconv.Itoa(pid) + "\n"))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (sg *ShellGroup) Writer(buf []byte) error {
