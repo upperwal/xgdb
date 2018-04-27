@@ -1,6 +1,7 @@
 package gdb
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -20,6 +21,9 @@ func NewGDB(progname string) (*GDB, error) {
 
 	pi, err := locator.GetProcessInfo(progname)
 	if err != nil {
+		if err.Error() == "exit status 1" {
+			return nil, errors.New("Could not find a running process")
+		}
 		return nil, err
 	}
 
@@ -95,7 +99,6 @@ func (gdb *GDB) remoteStdoutRoutine() {
 		}
 		
 		parser.ParseStdoutStream(s)
-		time.Sleep(10 * time.Millisecond)
 	}
 
 }

@@ -1,6 +1,9 @@
 package ssh
 
 import (
+	"io/ioutil"
+	"os/user"
+
 	"golang.org/x/crypto/ssh"
 )
 
@@ -15,10 +18,23 @@ func NewSSHConnection(hostname string) (*SSHConnection, error) {
 		Hostname: hostname,
 	}
 
-	sc.ClientConfig = &ssh.ClientConfig {
-		User: "marslab",
+	/*sc.ClientConfig = &ssh.ClientConfig {
+		User: "",
 		Auth: []ssh.AuthMethod {
-			ssh.Password("admin"),
+			ssh.Password(""),
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}*/
+
+	currentUser, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+
+	sc.ClientConfig = &ssh.ClientConfig{
+		User: currentUser.Username,
+		Auth: []ssh.AuthMethod{
+			sc.publicKeyFile(currentUser.HomeDir + "/.ssh/id_rsa"),
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
@@ -34,6 +50,19 @@ func NewSSHConnection(hostname string) (*SSHConnection, error) {
 	}
 
 	return sc, nil
+}
+
+func (sshConn *SSHConnection) publicKeyFile(file string) ssh.AuthMethod {
+	buffer, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil
+	}
+
+	key, err := ssh.ParsePrivateKey(buffer)
+	if err != nil {
+		return nil
+	}
+	return ssh.PublicKeys(key)
 }
 
 func (sshConn *SSHConnection) Shell() {
